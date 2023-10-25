@@ -1,13 +1,11 @@
-// https://stackoverflow.com/questions/72361260/why-webpack-doesnt-need-us-to-import-loaders-but-plugins-does
-// https://youtu.be/MpGLUVbqoYQ?t=3691
-
 const path = require("path")
+const common = require("./webpack.common")
+const { merge } = require("webpack-merge")
 
-module.exports = {
+module.exports = merge(common, {
     mode: "development",
-    entry: "./src/index.js",
     output: {
-        filename: "main.[contenthash].js",
+        filename: "[name].js",
         path: path.resolve(__dirname, "dist")
     },
     module: {
@@ -17,5 +15,5 @@ module.exports = {
                 use: ["style-loader", "css-loader", "sass-loader"]
             }
         ]
-    }
-}
+    },
+})
