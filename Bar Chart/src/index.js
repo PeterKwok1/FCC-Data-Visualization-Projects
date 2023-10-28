@@ -9,19 +9,37 @@ async function test() {
     const padding = 50
 
     const xScale = d3.scaleLinear()
-        .domain([0, d3.max(data, (d) => d[1])])
+        .domain([d3.min((data), d => Number(d[0].match(/^\d{4}/)[0])), d3.max])
         .range([padding, w - padding])
     const yScale = d3.scaleLinear()
-        .domain([0, d3.max(data, (d) => d[0])])
+        .domain([0, d3.max(data, (d) => d[1])])
         .range([h - padding, padding])
 
-    d3.select("#container")
+    const svg = d3.select("#container")
         .append("svg")
         .attr("width", w)
         .attr("height", h)
 
+    svg.selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => w / data.length * i)
+        .attr("y", (d, i) => h - d[1])
+        .attr("width", 8)
+        .attr("height", (d, i) => d[1])
+        .attr("fill", "#87CEEB")
+        .attr("class", "bar") //hover 
+        .append("title")
+        .text(d => d[0]) // tooltip
 
-    console.log(data[0][1])
+    const xAxis = d3.axisBottom(xScale)
+
+    svg.append("g")
+        .attr("transform", `translate(0, ${h - padding})`)
+        .call(xAxis)
+
+    console.log(data)
 
 }
 

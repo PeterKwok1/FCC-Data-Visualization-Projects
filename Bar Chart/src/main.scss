@@ -1,7 +1,12 @@
 body {
-    background-color: skyblue;
+    background-color: rgb(168, 175, 190);
 }
 
 svg {
     background-color: white;
+    box-shadow: 3px 3px 15px;
+}
+
+.bar:hover {
+    fill: black
 }
