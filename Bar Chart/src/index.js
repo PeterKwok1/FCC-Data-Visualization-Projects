@@ -1,6 +1,7 @@
 import "./main.scss"
+import { date } from "./date"
 
-async function test() {
+async function fetchData() {
     const response = await fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json")
     const data = (await response.json()).data
 
@@ -8,8 +9,8 @@ async function test() {
     const h = 480
     const padding = 50
 
-    const xScale = d3.scaleLinear()
-        .domain([d3.min((data), d => Number(d[0].match(/^\d{4}/)[0])), d3.max])
+    const xScale = d3.scaleTime()
+        .domain([d3.min(data, (d) => date(d[0])), d3.max(data, (d) => date(d[0]))])
         .range([padding, w - padding])
     const yScale = d3.scaleLinear()
         .domain([0, d3.max(data, (d) => d[1])])
@@ -24,6 +25,8 @@ async function test() {
         .data(data)
         .enter()
         .append("rect")
+        .attr("data-date", (d, i) => data[i][0])
+        .attr("data-gdp", (d, i) => `${data[i][1]}`)
         .attr("x", (d, i) => w / data.length * i)
         .attr("y", (d, i) => h - d[1])
         .attr("width", 8)
@@ -34,13 +37,20 @@ async function test() {
         .text(d => d[0]) // tooltip
 
     const xAxis = d3.axisBottom(xScale)
+    const yAxis = d3.axisLeft(yScale)
 
     svg.append("g")
+        .attr("id", "x-axis")
         .attr("transform", `translate(0, ${h - padding})`)
         .call(xAxis)
 
-    console.log(data)
+    svg.append("g")
+        .attr("id", "y-axis")
+        .attr("transform", `translate(${padding}, 0)`)
+        .call(yAxis)
 
+    console.log(date(data[270][0]))
 }
 
-test()
+fetchData()
+
