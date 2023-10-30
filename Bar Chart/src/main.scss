@@ -1,5 +1,12 @@
 body {
-    background-color: rgb(168, 175, 190);
+    background-color: rgb(116, 121, 131);
+}
+
+#container {
+    height: 97vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 svg {
@@ -9,4 +16,32 @@ svg {
 
 .bar:hover {
     fill: black
+}
+
+
+
+// modal test
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9
+}
+
+.modal.open,
+.overlay.open {
+    display: block;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    // padding: 0.5rem;
+    top: 50%; // center 
+    left: 50%;
+    translate: -50% -50%;
+    background: white;
+    // border-radius: 0.25rem;
+    z-index: 10;
 }
