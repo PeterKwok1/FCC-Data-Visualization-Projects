@@ -9,43 +9,10 @@ body {
     align-items: center;
 }
 
-svg {
-    background-color: white;
-    box-shadow: 3px 3px 15px;
-}
-
 .bar:hover {
-    fill: black
+    fill: rgba(0, 0, 0, 0.9)
 }
 
-
-
-// modal test
-.overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9
-}
-
-.modal.open,
-.overlay.open {
-    display: block;
-}
-
-.modal {
-    // display: none;
-    // position: fixed;
-    // padding: 0.5rem;
-    // top: 50%; // center 
-    // left: 50%;
-    // translate: -50% -50%;
-    background: white;
-    border-radius: 20%;
-    z-index: 10;
-}
-
-dialog::backdrop {
-    background-color: black;
+.close {
+    display: none
 }
