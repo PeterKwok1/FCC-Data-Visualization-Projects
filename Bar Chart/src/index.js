@@ -24,13 +24,18 @@ async function fetchData() {
         .attr("width", w)
         .attr("height", h)
 
-    svg.append("text")
+    svg.append("text") // title
         .attr("id", "title")
         .text("United States GDP")
         .attr("x", w / 2)
         .attr("text-anchor", "middle")
         .attr("y", padding)
         .style("font-size", "30px")
+
+    d3.select("#container") // it seems dialogue methods won't work if appended to svg
+        .append("dialog")
+        .attr("id", "tooltip")
+    const modal = document.querySelector("dialog")
 
     svg.selectAll("rect")
         .data(data)
@@ -44,10 +49,13 @@ async function fetchData() {
         .attr("height", (d) => h - yScale(d[1]) - padding)
         .attr("fill", "#87CEEB")
         .attr("class", "bar") //hover 
-        .append("title") // tooltip
-        .text(d => d[0])
-        .attr("id", "tooltip")
-        .attr("data-date", (d) => d[0])
+        .on("mouseover", (e) => {
+            modal.show()
+            modal.textContent = e.target.dataset.date
+        })
+        .on("mouseout", (e) => {
+            modal.close()
+        })
 
     const xAxis = d3.axisBottom(xScale)
     const yAxis = d3.axisLeft(yScale)
@@ -64,24 +72,10 @@ async function fetchData() {
         .call(yAxis)
         .style("font-size", "14px")
 
-    console.log(yScale(data[200][1]))
 }
 
 fetchData()
 
 
-// modal test
 
-const openButton = document.querySelector("[data-open-modal]")
-const closeButton = document.querySelector("[data-close-modal]")
-const modal = document.querySelector("[data-modal]")
-const overlay = document.querySelector("[data-overlay]")
 
-openButton.addEventListener('click', () => {
-    modal.classList.add("open")
-    overlay.classList.add("open")
-})
-closeButton.addEventListener('click', () => {
-    modal.classList.remove("open")
-    overlay.classList.remove("open")
-})
