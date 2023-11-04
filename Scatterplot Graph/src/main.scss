@@ -1,0 +1,19 @@
+body {
+    background-color: rgb(116, 121, 131);
+    overflow: hidden;
+}
+
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.bar:hover {
+    fill: rgba(0, 0, 0, 0.9)
+}
+
+.close {
+    display: none
+}

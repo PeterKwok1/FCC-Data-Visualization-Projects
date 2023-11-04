@@ -5,7 +5,6 @@ async function fetchData() {
     const response = await fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json")
     const data = (await response.json())
     const dataset = data.data
-    console.log(data)
 
     const w = 900
     const h = 600
@@ -108,6 +107,3 @@ async function fetchData() {
 }
 
 fetchData()
-
-
-

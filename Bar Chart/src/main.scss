@@ -1,12 +1,13 @@
 body {
     background-color: rgb(116, 121, 131);
+    overflow: hidden;
 }
 
 #container {
-    height: 97vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
 }
 
 .bar:hover {

@@ -1,10 +1,9 @@
-// invert yAxis
-// change xAxis to date 
-// ensure xAxis includes every year
-// compare with code camp example, notably scaleOrdinal and invert for colors?
+// color mapping
+// compare to fcc example
 
 import "./main.scss"
-import { timeParse } from "./time"
+import { hourParse } from "./time-parsers"
+import { yearParse } from "./time-parsers"
 
 async function fetchData() {
     const response = await fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json")
@@ -18,26 +17,47 @@ async function fetchData() {
         .append("svg")
         .attr("width", "900")
         .attr("height", "600")
+        .style("background-color", "white")
+        .style("box-shadow", "3px 3px 15px")
 
-    const xScale = d3.scaleLinear()
-        .domain(d3.extent(data, (d) => d.Year)) // extent returns [min, max]
+    svg.append("text")
+        .attr("id", "title")
+        .attr("x", `${w / 2}`)
+        .attr("y", `50`)
+        .attr("text-anchor", "middle")
+        .text("Doping in Professionl Cycling")
+        .style("font-size", "30")
+    svg.append("text")
+        .attr("x", `${w / 2}`)
+        .attr("y", `75`)
+        .attr("text-anchor", "middle")
+        .text("35 Fastest times up Alpe d'Huez")
+        .style("font-size", "18")
+
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(data, (d) => yearParse(d.Year))) // extent returns [min, max]
         .range([padding, w - padding])
         .nice()
-    const yScale = d3.scaleTime() // scaleOrdinal would have worked as well 
-        .domain(d3.extent(data, (d) => timeParse(d.Time)))
+    const yScale = d3.scaleTime()
+        .domain(d3.extent(data, (d) => hourParse(d.Time)))
         .range([h - padding, padding])
         .nice()
 
-    const timeFormat = d3.timeFormat("%M:%S")
+    const yearFormat = d3.timeFormat("%Y")
+    const hourFormat = d3.timeFormat("%M:%S")
     const xAxis = d3.axisBottom(xScale)
-    // .ticks(20)
+        .tickFormat(yearFormat)
+        .ticks(22)
     const yAxis = d3.axisLeft(yScale)
-        .ticks(10, timeFormat)
+        .tickFormat(hourFormat)
+        .ticks(20)
 
     svg.append("g")
+        .attr("id", "x-axis")
         .attr("transform", `translate(0, ${h - padding})`)
         .call(xAxis)
     svg.append("g")
+        .attr("id", "y-axis")
         .attr("transform", `translate(${padding}, 0)`)
         .call(yAxis)
 
@@ -45,15 +65,23 @@ async function fetchData() {
         .data(data)
         .enter()
         .append("circle")
-        .attr("cx", "100")
-        .attr("cy", "100")
+        .classed("dot", true)
+        .attr("data-xvalue", (d) => yearParse(d.Year))
+        .attr("data-yvalue", (d) => hourParse(d.Time))
+        .attr("cx", (d) => xScale(yearParse(d.Year)))
+        .attr("cy", (d) => yScale(hourParse(d.Time)))
         .attr("r", 5)
         .attr("fill", "black")
 
+    const doping = [true, false]
+    const colors = d3.schemeCategory10
+    const colorScale = d3.scaleOrdinal()
+        .domain(doping)
+        .range(colors)
+
     console.log(
         data,
-        d3.extent(data, (d) => timeParse(d.Time)),
-        yScale(timeParse(data[10].Time))
+        colorScale(false),
     )
 }
 
