@@ -1,4 +1,5 @@
-// color mapping
+// update bar chart tool tip if this one passes test
+// complete tests
 // compare to fcc example
 
 import "./main.scss"
@@ -61,6 +62,12 @@ async function fetchData() {
         .attr("transform", `translate(${padding}, 0)`)
         .call(yAxis)
 
+    const doping = [true, false]
+    const colors = d3.schemeCategory10
+    const colorScale = d3.scaleOrdinal()
+        .domain(doping)
+        .range(colors)
+
     svg.selectAll("circle")
         .data(data)
         .enter()
@@ -71,13 +78,29 @@ async function fetchData() {
         .attr("cx", (d) => xScale(yearParse(d.Year)))
         .attr("cy", (d) => yScale(hourParse(d.Time)))
         .attr("r", 5)
-        .attr("fill", "black")
+        .attr("fill", (d) => colorScale(d.Doping.length === 0 ? true : false))
+        .on("mouseover", (e) => { console.log("hihi") })
 
-    const doping = [true, false]
-    const colors = d3.schemeCategory10
-    const colorScale = d3.scaleOrdinal()
-        .domain(doping)
-        .range(colors)
+    const toolTip = svg.append("g")
+        .attr("id", "tooltip")
+        .attr("transform", "translate(120, 120)")
+    toolTip.append("rect")
+        .attr("width", "100")
+        .attr("height", "100")
+        .attr("fill", "red")
+        .attr("x", "-10")
+        .attr("y", "-10")
+    toolTip.append("text")
+        .text("hihi")
+        .attr("text-anchor", "middle")
+    // const toolTip = svg.append("text")
+    //     .attr("x", "100")
+    //     .attr("y", "100")
+    // toolTip.append("tspan")
+    //     .text("hihi")
+    // toolTip.append("tspan")
+    //     .text("gogo")
+    //     .attr("dy", "-20")
 
     console.log(
         data,
