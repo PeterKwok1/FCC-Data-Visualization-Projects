@@ -1,6 +1,6 @@
-// update bar chart tool tip if this one passes test
 // complete tests
-// compare to fcc example
+// compare to fcc example 
+// update bar chart tool tip
 
 import "./main.scss"
 import { hourParse } from "./time-parsers"
@@ -36,12 +36,12 @@ async function fetchData() {
         .style("font-size", "18")
 
     const xScale = d3.scaleTime()
-        .domain(d3.extent(data, (d) => yearParse(d.Year))) // extent returns [min, max]
+        .domain(d3.extent(data, (d) => yearParse(d.Year)))
         .range([padding, w - padding])
         .nice()
     const yScale = d3.scaleTime()
         .domain(d3.extent(data, (d) => hourParse(d.Time)))
-        .range([h - padding, padding])
+        .range([padding, h - padding])
         .nice()
 
     const yearFormat = d3.timeFormat("%Y")
@@ -79,28 +79,34 @@ async function fetchData() {
         .attr("cy", (d) => yScale(hourParse(d.Time)))
         .attr("r", 5)
         .attr("fill", (d) => colorScale(d.Doping.length === 0 ? true : false))
-        .on("mouseover", (e) => { console.log("hihi") })
+        .on("mouseover", (e) => {
+            toolTip.attr("data-year", e.target.dataset.xvalue)
+            toolTip.classed("close", false)
+            toolTip.attr("transform", `translate(120, 120)`)
+        })
+        .on("mouseout", (e) => {
+            toolTip.classed("close", true)
+        })
 
     const toolTip = svg.append("g")
         .attr("id", "tooltip")
+        .style("font-size", "medium")
         .attr("transform", "translate(120, 120)")
+        .classed("close", true)
     toolTip.append("rect")
         .attr("width", "100")
-        .attr("height", "100")
-        .attr("fill", "red")
-        .attr("x", "-10")
-        .attr("y", "-10")
-    toolTip.append("text")
-        .text("hihi")
-        .attr("text-anchor", "middle")
-    // const toolTip = svg.append("text")
-    //     .attr("x", "100")
-    //     .attr("y", "100")
-    // toolTip.append("tspan")
-    //     .text("hihi")
-    // toolTip.append("tspan")
-    //     .text("gogo")
-    //     .attr("dy", "-20")
+        .attr("height", "66")
+        .attr("fill", "white")
+        .attr("stroke", "black")
+        .attr("rx", "5")
+        .attr("transform", "translate(-5, -15)")
+    const name = toolTip.append("text")
+    const year = toolTip.append("text")
+        .attr("y", "15")
+    const time = toolTip.append("text")
+        .attr("y", "30")
+    const allegations = toolTip.append("text")
+        .attr("y", "45")
 
     console.log(
         data,
