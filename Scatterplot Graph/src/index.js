@@ -73,25 +73,34 @@ async function fetchData() {
         .enter()
         .append("circle")
         .classed("dot", true)
-        .attr("data-xvalue", (d) => yearParse(d.Year))
-        .attr("data-yvalue", (d) => hourParse(d.Time))
+        .attr("data-xvalue", (d) => yearParse(d.Year)) // for tests
+        .attr("data-yvalue", (d) => hourParse(d.Time)) // for tests
+        .attr("data-name", (d) => d.Name)
+        .attr("data-nationality", (d) => d.Nationality)
+        .attr("data-Year", (d) => d.Year)
+        .attr("data-Time", (d) => d.Time)
+        .attr("data-allegations", (d) => d.Doping)
         .attr("cx", (d) => xScale(yearParse(d.Year)))
         .attr("cy", (d) => yScale(hourParse(d.Time)))
         .attr("r", 5)
         .attr("fill", (d) => colorScale(d.Doping.length === 0 ? true : false))
         .on("mouseover", (e) => {
-            toolTip.attr("data-year", e.target.dataset.xvalue)
-            toolTip.classed("close", false)
-            toolTip.attr("transform", `translate(120, 120)`)
+            nameNationality.text(`${e.target.dataset.name}, ${e.target.dataset.nationality}`)
+            yearTime.text(`${e.target.dataset.Year}, ${e.target.dataset.Time}`)
+            allegations.text(e.target.dataset.allegations)
+            toolTip.attr("data-year", e.target.dataset.xvalue) // for tests
+                .attr("transform", `translate(
+                    ${d3.select(e.target).attr("cx")}, 
+                    ${d3.select(e.target).attr("cy")}
+                    )`)
+                .classed("close", false)
         })
         .on("mouseout", (e) => {
-            toolTip.classed("close", true)
+            // toolTip.classed("close", true)
         })
 
     const toolTip = svg.append("g")
         .attr("id", "tooltip")
-        .style("font-size", "medium")
-        .attr("transform", "translate(120, 120)")
         .classed("close", true)
     toolTip.append("rect")
         .attr("width", "100")
@@ -100,13 +109,11 @@ async function fetchData() {
         .attr("stroke", "black")
         .attr("rx", "5")
         .attr("transform", "translate(-5, -15)")
-    const name = toolTip.append("text")
-    const year = toolTip.append("text")
+    const nameNationality = toolTip.append("text")
+    const yearTime = toolTip.append("text")
         .attr("y", "15")
-    const time = toolTip.append("text")
-        .attr("y", "30")
     const allegations = toolTip.append("text")
-        .attr("y", "45")
+        .attr("y", "30")
 
     console.log(
         data,
