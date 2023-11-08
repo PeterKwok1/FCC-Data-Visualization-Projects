@@ -68,6 +68,8 @@ async function fetchData() {
         .domain(doping)
         .range(colors)
 
+    const toolTip = d3.select("#tooltip")
+
     svg.selectAll("circle")
         .data(data)
         .enter()
@@ -77,48 +79,48 @@ async function fetchData() {
         .attr("data-yvalue", (d) => hourParse(d.Time)) // for tests
         .attr("data-name", (d) => d.Name)
         .attr("data-nationality", (d) => d.Nationality)
-        .attr("data-Year", (d) => d.Year)
-        .attr("data-Time", (d) => d.Time)
+        .attr("data-year", (d) => d.Year)
+        .attr("data-time", (d) => d.Time)
         .attr("data-allegations", (d) => d.Doping)
         .attr("cx", (d) => xScale(yearParse(d.Year)))
         .attr("cy", (d) => yScale(hourParse(d.Time)))
         .attr("r", 5)
         .attr("fill", (d) => colorScale(d.Doping.length === 0 ? true : false))
         .on("mouseover", (e) => {
-            nameNationality.text(`${e.target.dataset.name}, ${e.target.dataset.nationality}`)
-            yearTime.text(`${e.target.dataset.Year}, ${e.target.dataset.Time}`)
-            allegations.text(e.target.dataset.allegations)
-            toolTip.attr("data-year", e.target.dataset.xvalue) // for tests
-                .attr("transform", `translate(
-                    ${d3.select(e.target).attr("cx")}, 
-                    ${d3.select(e.target).attr("cy")}
-                    )`)
+            toolTip
+                .attr("data-year", e.target.dataset.xvalue) // for tests
+                .text(`${e.target.dataset.name}, ${e.target.dataset.nationality}\n${e.target.dataset.year}, ${e.target.dataset.time}\n${e.target.dataset.allegations}`)
+                .style("transform", `translate(${Number(d3.select(e.target).attr("cx")) + 20}px, ${Number(d3.select(e.target).attr("cy")) - 15}px)`)
                 .classed("close", false)
+                .classed("border", true)
         })
         .on("mouseout", (e) => {
-            // toolTip.classed("close", true)
+            toolTip.classed("close", true)
         })
 
-    const toolTip = svg.append("g")
-        .attr("id", "tooltip")
-        .classed("close", true)
-    toolTip.append("rect")
-        .attr("width", "100")
-        .attr("height", "66")
+    const legend = svg.append("g")
+        .attr("id", "legend")
+        .attr("transform", "translate(100, 100)")
+    legend.append("rect")
+        .attr("height", "100px")
+        .attr("width", "200px")
         .attr("fill", "white")
         .attr("stroke", "black")
-        .attr("rx", "5")
-        .attr("transform", "translate(-5, -15)")
-    const nameNationality = toolTip.append("text")
-    const yearTime = toolTip.append("text")
-        .attr("y", "15")
-    const allegations = toolTip.append("text")
-        .attr("y", "30")
-
-    console.log(
-        data,
-        colorScale(false),
-    )
+        .attr("rx", "8px")
+    legend.selectAll("text")
+        .data(doping)
+        .enter()
+        .append("text")
+        .attr("y", (d, i) => `${i * 15}px`)
+        .text("color 1")
+    legend.selectAll(null)
+        .data(doping)
+        .enter()
+        .append("rect")
+        .attr("x", "100")
+        .attr("y", (d, i) => `${(i - 1) * 15}px`)
+        .attr("height", "20px")
+        .attr("width", "20px")
 }
 
 fetchData()
