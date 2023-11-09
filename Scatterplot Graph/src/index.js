@@ -1,4 +1,3 @@
-// complete tests
 // compare to fcc example 
 // update bar chart tool tip
 
@@ -62,13 +61,31 @@ async function fetchData() {
         .attr("transform", `translate(${padding}, 0)`)
         .call(yAxis)
 
+    const labels = svg.append("g")
+        .style("font-size", "large")
+        .style("text-anchor", "middle")
+    labels.append("text")
+        .style("transform", "rotate(270deg)")
+        .text("Minutes")
+        .attr("x", "-300")
+        .attr("y", "40")
+    labels.append("text")
+        .text("Year")
+        .attr("x", "450")
+        .attr("y", "550")
+
     const doping = [true, false]
     const colors = d3.schemeCategory10
     const colorScale = d3.scaleOrdinal()
         .domain(doping)
         .range(colors)
 
-    const toolTip = d3.select("#tooltip")
+    const tooltip = d3.select("#container")
+        .insert("div", ":first-child")
+        .attr("id", "tooltip")
+        .classed("close", true)
+        .style("opacity", "0.85")
+        .style("background-color", "#f2f2f2")
 
     svg.selectAll("circle")
         .data(data)
@@ -87,44 +104,43 @@ async function fetchData() {
         .attr("r", 5)
         .attr("fill", (d) => colorScale(d.Doping.length === 0 ? true : false))
         .on("mouseover", (e) => {
-            toolTip
-                .attr("data-year", e.target.dataset.xvalue) // for tests
+            tooltip.attr("data-year", e.target.dataset.xvalue) // for tests
                 .text(`${e.target.dataset.name}, ${e.target.dataset.nationality}\n${e.target.dataset.year}, ${e.target.dataset.time}\n${e.target.dataset.allegations}`)
                 .style("transform", `translate(${Number(d3.select(e.target).attr("cx")) + 20}px, ${Number(d3.select(e.target).attr("cy")) - 15}px)`)
                 .classed("close", false)
                 .classed("border", true)
         })
         .on("mouseout", (e) => {
-            toolTip.classed("close", true)
+            tooltip.classed("close", true)
         })
 
     const legend = svg.append("g")
         .attr("id", "legend")
-        .attr("transform", "translate(100, 100)")
+        .attr("transform", "translate(600, 175)")
     legend.append("rect")
-        .attr("height", "100px")
-        .attr("width", "150px")
+        .attr("height", "80px")
+        .attr("width", "155px")
         .attr("fill", "white")
         .attr("stroke", "black")
-        .attr("rx", "8px")
+        .attr("rx", "2px")
         .attr("y", "-20px")
     legend.append("text")
         .style("font-size", "large")
         .text("Doping Allegations")
-        .attr("x", "5px")
+        .attr("x", "6px")
     legend.selectAll(null)
         .data(doping)
         .enter()
         .append("text")
-        .attr("y", (d, i) => `${(i + 1) * 20}px`)
-        .attr("x", "40px")
-        .text((d) => d === true ? "Yes" : "No")
+        .attr("y", (d, i) => `${(i + 1) * 20 + 4}px`)
+        .attr("x", "45px")
+        .text((d) => d === true ? "No" : "Yes")
     legend.selectAll(null)
         .data(doping)
         .enter()
         .append("rect")
-        .attr("x", "80")
-        .attr("y", (d, i) => `${i * 20 + 5}px`)
+        .attr("x", "85")
+        .attr("y", (d, i) => `${i * 20 + 10}px`)
         .attr("height", "17px")
         .attr("width", "17px")
         .attr("fill", (d) => `${colorScale(d)}`)
