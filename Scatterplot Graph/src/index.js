@@ -84,8 +84,6 @@ async function fetchData() {
         .insert("div", ":first-child")
         .attr("id", "tooltip")
         .classed("close", true)
-        .style("opacity", "0.85")
-        .style("background-color", "#f2f2f2")
 
     svg.selectAll("circle")
         .data(data)
@@ -108,7 +106,6 @@ async function fetchData() {
                 .text(`${e.target.dataset.name}, ${e.target.dataset.nationality}\n${e.target.dataset.year}, ${e.target.dataset.time}\n${e.target.dataset.allegations}`)
                 .style("transform", `translate(${Number(d3.select(e.target).attr("cx")) + 20}px, ${Number(d3.select(e.target).attr("cy")) - 15}px)`)
                 .classed("close", false)
-                .classed("border", true)
         })
         .on("mouseout", (e) => {
             tooltip.classed("close", true)
