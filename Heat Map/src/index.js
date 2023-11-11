@@ -1,12 +1,10 @@
 import "./main.scss"
-import * as date from "./date"
-
-console.log(date.year("2000"))
-console.log(date.month("3"))
+import * as dateParse from "./date-parse"
 
 async function fetchData() {
     const response = await fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json")
     const data = await response.json()
+    const dataset = data.monthlyVariance
 
     const h = 600
     const w = 900
@@ -35,11 +33,24 @@ async function fetchData() {
         .attr("text-anchor", "middle")
         .style("font-size", "18px")
 
-    const xAxis = d3.scaleTime()
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(dataset, (d) => dateParse.yearParse(d.year.toString())))
+        .range([padding, w - padding])
+    // .nice()
 
+    const yearFormat = d3.timeFormat("%Y")
+    const monthFormat = ""
+
+    const xAxis = d3.axisBottom(xScale)
+        .tickFormat(yearFormat)
+    // .ticks()
+
+    svg.append("g")
+        .attr("transform", `translate(0, ${h - padding})`)
+        .call(xAxis)
 
     console.log(
-        data
+
     )
 }
 
