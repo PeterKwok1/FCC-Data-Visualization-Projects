@@ -1,9 +1,13 @@
+// tests don't seem to want me to adjust rect position. will have to move y axis and add path to bottom.
+// colors - https://observablehq.com/@d3/color-schemes
+
 import "./main.scss"
 import * as dateParse from "./date-parse"
 
 async function fetchData() {
     const response = await fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json")
     const data = await response.json()
+    const baseTemp = data.baseTemperature
     const dataset = data.monthlyVariance
 
     const h = 600
@@ -38,7 +42,11 @@ async function fetchData() {
         .range([padding, w - padding])
     const yScale = d3.scaleTime()
         .domain(d3.extent(dataset, (d) => dateParse.monthParse(d.month.toString())))
-        .range([h - padding, padding + 400 / 12])
+        .range([h - padding, padding + (h - padding * 2) / 12])
+    const colorScale = d3.scaleOrdinal()
+        .domain(d3.extent(dataset, (d) => baseTemp + d.variance))
+        .range(["#fff5eb", "#fee7cf", "#fdd4ab", "#fdb97e", "#fd9c51", "#f77d2a", "#e85e0e", "#cc4503", "#a33503", "#7f2704"]
+        )
 
     const yearFormat = d3.timeFormat("%Y")
     const monthFormat = d3.timeFormat("%B")
@@ -59,11 +67,26 @@ async function fetchData() {
         .attr("transform", `translate(${padding}, 0)`)
         .call(yAxis)
         .append("path")
-        .attr("d", `M 0,100 l 0,${400 / 12}`)
+        .attr("d", `M 0,100 l 0,${(h - padding * 2) / 12}`)
         .attr("stroke", "currentColor");
 
+    svg.selectAll(null)
+        .data(dataset)
+        .enter()
+        .append("rect")
+        .classed("cell", true)
+        .attr("data-month", (d) => d.month)
+        .attr("data-year", (d) => d.year)
+        .attr("data-temp", (d) => baseTemp + d.variance)
+        .attr("x", (d) => xScale(dateParse.yearParse(d.year.toString())))
+        .attr("y", (d) => yScale(dateParse.monthParse(d.month.toString())))
+        .attr("height", () => (h - padding * 2) / 12)
+        .attr("width", () => (w - padding * 2) / (d3.max(dataset, (d) => d.year) - d3.min(dataset, (d) => d.year)))
+        .attr("fill", (d) => colorScale(baseTemp + d.variance))
+
     console.log(
-        dataset
+        data,
+        dataset,
     )
 }
 
