@@ -29,28 +29,41 @@ async function fetchData() {
         .attr("id", "description")
         .attr("x", `${w / 2}`)
         .attr("y", "75")
-        .text(`Monthly temperature variance, Base temperature: 8.66${String.fromCharCode(176)}C`)
+        .text(`Monthly temperature variance 1753-2015, Base temperature = 8.66${String.fromCharCode(176)}C`)
         .attr("text-anchor", "middle")
         .style("font-size", "18px")
 
     const xScale = d3.scaleTime()
         .domain(d3.extent(dataset, (d) => dateParse.yearParse(d.year.toString())))
         .range([padding, w - padding])
-    // .nice()
+    const yScale = d3.scaleTime()
+        .domain(d3.extent(dataset, (d) => dateParse.monthParse(d.month.toString())))
+        .range([h - padding, padding + 400 / 12])
 
     const yearFormat = d3.timeFormat("%Y")
-    const monthFormat = ""
+    const monthFormat = d3.timeFormat("%B")
 
     const xAxis = d3.axisBottom(xScale)
         .tickFormat(yearFormat)
-    // .ticks()
+        .tickPadding([5])
+    const yAxis = d3.axisLeft(yScale)
+        .tickFormat(monthFormat)
+        .tickPadding([5])
 
     svg.append("g")
+        .attr("id", "x-axis")
         .attr("transform", `translate(0, ${h - padding})`)
         .call(xAxis)
+    svg.append("g")
+        .attr("id", "y-axis")
+        .attr("transform", `translate(${padding}, 0)`)
+        .call(yAxis)
+        .append("path")
+        .attr("d", `M 0,100 l 0,${400 / 12}`)
+        .attr("stroke", "currentColor");
 
     console.log(
-
+        dataset
     )
 }
 
