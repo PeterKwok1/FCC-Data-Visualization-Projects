@@ -1,4 +1,3 @@
-// tests don't seem to want me to adjust rect position. will have to move y axis and add path to bottom.
 // colors - https://observablehq.com/@d3/color-schemes
 
 import "./main.scss"
@@ -42,11 +41,19 @@ async function fetchData() {
         .range([padding, w - padding])
     const yScale = d3.scaleTime()
         .domain(d3.extent(dataset, (d) => dateParse.monthParse(d.month.toString())))
-        .range([h - padding, padding + (h - padding * 2) / 12])
-    const colorScale = d3.scaleOrdinal()
-        .domain(d3.extent(dataset, (d) => baseTemp + d.variance))
-        .range(["#fff5eb", "#fee7cf", "#fdd4ab", "#fdb97e", "#fd9c51", "#f77d2a", "#e85e0e", "#cc4503", "#a33503", "#7f2704"]
-        )
+        .range([h - padding - ((h - padding * 2) / 12 / 2), padding + ((h - padding * 2) / 12 / 2)])
+    let range = d3.extent(dataset, (d) => baseTemp + d.variance)
+    let colorSpace = ["#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4"].reverse()
+    let intervals = []
+    const section = (range[1] - range[0]) / 8
+    let sectionCount = range[0]
+    while (intervals.length < 9) {
+        intervals.push(sectionCount)
+        sectionCount += section
+    }
+    const colorScale = d3.scaleLinear()
+        .domain(intervals)
+        .range(colorSpace)
 
     const yearFormat = d3.timeFormat("%Y")
     const monthFormat = d3.timeFormat("%B")
@@ -66,26 +73,44 @@ async function fetchData() {
         .attr("id", "y-axis")
         .attr("transform", `translate(${padding}, 0)`)
         .call(yAxis)
-        .append("path")
-        .attr("d", `M 0,100 l 0,${(h - padding * 2) / 12}`)
-        .attr("stroke", "currentColor");
+
+    svg.append("text")
+        .text("Month")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(50, 300) rotate(270)")
+    svg.append("text")
+        .text("Year")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(450, 550)")
+
+    const legend = svg.append("g")
+        .attr("transform", "translate(600, 550)")
+    const tempScale = d3.scaleLinear()
+        .domain(range)
+        .range([0, 200])
+        .nice()
+    const tempAxis = d3.axisBottom(tempScale)
+    legend.append("g")
+        .attr("id", "legend")
+        .call(tempAxis)
 
     svg.selectAll(null)
         .data(dataset)
         .enter()
         .append("rect")
         .classed("cell", true)
-        .attr("data-month", (d) => d.month)
+        .attr("data-month", (d) => d.month - 1)
         .attr("data-year", (d) => d.year)
         .attr("data-temp", (d) => baseTemp + d.variance)
         .attr("x", (d) => xScale(dateParse.yearParse(d.year.toString())))
-        .attr("y", (d) => yScale(dateParse.monthParse(d.month.toString())))
+        .attr("y", (d) => yScale(dateParse.monthParse(d.month.toString())) - ((h - padding * 2) / 12 / 2))
         .attr("height", () => (h - padding * 2) / 12)
         .attr("width", () => (w - padding * 2) / (d3.max(dataset, (d) => d.year) - d3.min(dataset, (d) => d.year)))
         .attr("fill", (d) => colorScale(baseTemp + d.variance))
 
+
+
     console.log(
-        data,
         dataset,
     )
 }
