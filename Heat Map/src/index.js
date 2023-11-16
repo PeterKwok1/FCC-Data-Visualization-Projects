@@ -1,4 +1,5 @@
-// colors - https://observablehq.com/@d3/color-schemes
+// monthParse tooltip
+// finish tooltip, upload
 
 import "./main.scss"
 import * as dateParse from "./date-parse"
@@ -83,17 +84,6 @@ async function fetchData() {
         .attr("text-anchor", "middle")
         .attr("transform", "translate(450, 550)")
 
-    const legend = svg.append("g")
-        .attr("transform", "translate(600, 550)")
-    const tempScale = d3.scaleLinear()
-        .domain(range)
-        .range([0, 200])
-        .nice()
-    const tempAxis = d3.axisBottom(tempScale)
-    legend.append("g")
-        .attr("id", "legend")
-        .call(tempAxis)
-
     svg.selectAll(null)
         .data(dataset)
         .enter()
@@ -107,12 +97,36 @@ async function fetchData() {
         .attr("height", () => (h - padding * 2) / 12)
         .attr("width", () => (w - padding * 2) / (d3.max(dataset, (d) => d.year) - d3.min(dataset, (d) => d.year)))
         .attr("fill", (d) => colorScale(baseTemp + d.variance))
+        .on("mouseover", (e) => {
+            tooltip.attr("data-year", e.target.dataset.year)
+            tooltip.text(`${Number(e.target.dataset.month) + 1}/${e.target.dataset.year}\n`)
+        })
+        .on("mouseout", (e) => {
+        })
 
+    const tooltip = d3.select("#container")
+        .insert("div", ":first-child")
+        .attr("id", "tooltip")
+        .classed("close", true)
 
-
-    console.log(
-        dataset,
-    )
+    const legend = svg.append("g")
+        .attr("id", "legend")
+        .attr("transform", "translate(575, 550)")
+    const tempScale = d3.scaleLinear()
+        .domain(range)
+        .range([0, 200])
+    const tempAxis = d3.axisBottom(tempScale)
+    legend.append("g")
+        .call(tempAxis)
+    legend.selectAll(null)
+        .data(intervals)
+        .enter()
+        .append("rect")
+        .attr("height", `${200 / (intervals.length - 1)}px`)
+        .attr("width", `${200 / (intervals.length - 1)}px`)
+        .attr("fill", (d) => colorScale(d))
+        .attr("x", (d) => tempScale(d - section / 2))
+        .attr("y", "-24")
 }
 
 fetchData()
