@@ -1,6 +1,3 @@
-// monthParse tooltip
-// finish tooltip, upload
-
 import "./main.scss"
 import * as dateParse from "./date-parse"
 
@@ -91,6 +88,7 @@ async function fetchData() {
         .classed("cell", true)
         .attr("data-month", (d) => d.month - 1)
         .attr("data-year", (d) => d.year)
+        .attr("data-variance", (d) => d.variance)
         .attr("data-temp", (d) => baseTemp + d.variance)
         .attr("x", (d) => xScale(dateParse.yearParse(d.year.toString())))
         .attr("y", (d) => yScale(dateParse.monthParse(d.month.toString())) - ((h - padding * 2) / 12 / 2))
@@ -99,9 +97,12 @@ async function fetchData() {
         .attr("fill", (d) => colorScale(baseTemp + d.variance))
         .on("mouseover", (e) => {
             tooltip.attr("data-year", e.target.dataset.year)
-            tooltip.text(`${Number(e.target.dataset.month) + 1}/${e.target.dataset.year}\n`)
+                .text(`${dateParse.monthParse((Number(e.target.dataset.month) + 1).toString()).toLocaleString('default', { month: 'long' })} ${e.target.dataset.year}\n${Number(e.target.dataset.variance) > 0 ? `+${e.target.dataset.variance}` : e.target.dataset.variance}, ${Math.round(Number(e.target.dataset.temp) * 1000) / 1000}`)
+                .style("transform", `translate(${Number(d3.select(e.target).attr("x")) + 25}px, ${Number(d3.select(e.target).attr("y")) - 35}px)`)
+                .classed("close", false)
         })
         .on("mouseout", (e) => {
+            tooltip.classed("close", true)
         })
 
     const tooltip = d3.select("#container")
@@ -130,3 +131,5 @@ async function fetchData() {
 }
 
 fetchData()
+
+
