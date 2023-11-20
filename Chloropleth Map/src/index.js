@@ -15,7 +15,7 @@ async function fetchData() {
     const topResponse = await fetch("https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json")
     const topData = await topResponse.json()
 
-    const h = 600
+    const h = 700
     const w = 900
     const padding = 100
 
@@ -25,12 +25,11 @@ async function fetchData() {
         .attr("width", w)
         .style("background-color", "white")
 
-    // const projection = d3.geoAlbersUsa()
-    // .scale(1280)
-    // .translate([w / 2, h / 2])
+    const projection = d3.geoIdentity()
+        .fitExtent([[padding / 4, padding], [w - padding / 4, h]], topojson.feature(topData, topData.objects.states))
 
     const path = d3.geoPath()
-    // .projection(projection)
+        .projection(projection)
 
     svg.selectAll(null)
         .data(topojson.feature(topData, topData.objects.states).features)
