@@ -30,9 +30,19 @@ async function fetchData() {
 
     const projection = d3.geoIdentity()
         .fitExtent([[padding / 4, padding], [w - padding / 4, h]], geoJSON)
-
     const path = d3.geoPath()
         .projection(projection)
+
+    let range = d3.extent(eduData, (d) => d.bachelorsOrHigher)
+    let section = (range[1] - range[0]) / 9
+    let intervals = []
+    let colorSpace = d3.schemeBlues[9]
+    for (let i = 0; i < colorSpace.length - 1; i++) {
+        intervals.push(range[0] + section * (i + 1))
+    }
+    const colorScale = d3.scaleThreshold()
+        .domain(intervals)
+        .range(colorSpace)
 
     svg.selectAll(null)
         .data(geoJSON.features)
@@ -50,19 +60,17 @@ async function fetchData() {
             return data
         })
         .classed("county", true)
-        .attr("fill", "#D9F0FF")
+        .attr("fill", (d) => {
+            let data = ""
+            eduData.forEach(e => {
+                if (d.id === e.fips) {
+                    data = e.bachelorsOrHigher
+                }
+            })
+            return colorScale(data)
+        })
         .attr("stroke", "#A3D5FF")
         .attr("stroke-width", 1);
-
-    let range = d3.extent(eduData, (d) => d.bachelorsOrHigher)
-    let colorSpace = d3.schemeBlues[9]
-    let section = (range[1] - range[0]) / 9
-    let intervals = []
-    colorSpace.forEach((e, i) => intervals.push(range[0] + section * i))
-    intervals.shift()
-    const colorScale = d3.scaleThreshold()
-        .domain(intervals)
-        .range(colorSpace)
 
     const title = svg.append("g")
         .style("text-anchor", "middle")
@@ -76,6 +84,13 @@ async function fetchData() {
         .text("% of people aged >= 25 with at least a bachelor's degree")
         .attr("transform", `translate(0, 25)`)
 
+    // legend
+    const legendAxis = d3.axisBottom(colorScale)
+    const legend = svg.append("g")
+        .attr("transform", `translate(100, 100)`)
+        .attr("id", "legend")
+    legend.append("g")
+        .call(legendAxis)
 
     console.log(
         // topData,
