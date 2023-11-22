@@ -85,12 +85,26 @@ async function fetchData() {
         .attr("transform", `translate(0, 25)`)
 
     // legend
-    const legendAxis = d3.axisBottom(colorScale)
+    // let lengthIntervals = []
+    // colorSpace.forEach((e, i) => lengthIntervals.push(i * 20))
+    const legendScale = d3.scaleLinear()
+        .domain(range)
+        .range([0, 200])
+    // .nice()
+    const legendAxis = d3.axisBottom(legendScale)
+    // .tickFormat(d3.format(".2f"))
     const legend = svg.append("g")
         .attr("transform", `translate(100, 100)`)
         .attr("id", "legend")
     legend.append("g")
         .call(legendAxis)
+    legend.selectAll(null)
+        .data(intervals)
+        .enter()
+        .append("rect")
+        .attr("height", (d, i) => 200 / 8) // ...
+        .attr("width", 10)
+        .attr("fill", "black")
 
     console.log(
         // topData,
