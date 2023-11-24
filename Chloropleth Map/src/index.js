@@ -70,7 +70,14 @@ async function fetchData() {
             return colorScale(data)
         })
         .attr("stroke", "#A3D5FF")
-        .attr("stroke-width", 1);
+        .attr("stroke-width", 1)
+        .on("mouseover", (e) => {
+            tooltip.attr("data-education", `${d3.select(e.target).attr("data-education")}`)
+                .text(`${d3.select(e.target).attr("data-education")}%`)
+                .style("transform", `translate(${e.target.getPointAtLength(0).x + 25}px, ${e.target.getPointAtLength(0).y - 25}px)`)
+            // add state, county, 
+            // add state lines 
+        })
 
     const title = svg.append("g")
         .style("text-anchor", "middle")
@@ -84,30 +91,34 @@ async function fetchData() {
         .text("% of people aged >= 25 with at least a bachelor's degree")
         .attr("transform", `translate(0, 25)`)
 
-    // legend
-    // let lengthIntervals = []
-    // colorSpace.forEach((e, i) => lengthIntervals.push(i * 20))
     const legendScale = d3.scaleLinear()
         .domain(range)
         .range([0, 200])
-    // .nice()
     const legendAxis = d3.axisBottom(legendScale)
-    // .tickFormat(d3.format(".2f"))
     const legend = svg.append("g")
-        .attr("transform", `translate(100, 100)`)
+        .attr("transform", `translate(550, 150)`)
         .attr("id", "legend")
     legend.append("g")
         .call(legendAxis)
     legend.selectAll(null)
-        .data(intervals)
+        .data(colorSpace)
         .enter()
         .append("rect")
-        .attr("height", (d, i) => 200 / 8) // ...
-        .attr("width", 10)
-        .attr("fill", "black")
+        .attr("height", 200 / 9)
+        .attr("width", 200 / 9)
+        .attr("fill", (d) => d)
+        .attr("x", (d, i) => i * 200 / 9)
+        .attr("y", "-21")
+
+    const tooltip = d3.select("#container")
+        .insert("div", ":first-child")
+        .attr("id", "tooltip")
+        .classed("close", true)
 
     console.log(
         // topData,
+        range,
+        intervals,
         eduData,
         // geoJSON.features
     )
