@@ -1,11 +1,3 @@
-// https://www.youtube.com/watch?v=FsDyelH58F0
-// https://forum.freecodecamp.org/t/drawing-us-map-in-d3-chloropleth/481354/4
-// https://medium.com/geekculture/advanced-map-visualization-and-cartography-with-d3-js-geojson-topojson-2de786ece0c3
-// https://choropleth-map.freecodecamp.rocks/
-// https://github.com/topojson/topojson 
-
-// separate asyn from non async
-
 import "./main.scss"
 
 async function fetchData() {
@@ -16,6 +8,13 @@ async function fetchData() {
     const topData = await topResponse.json()
     let geoJSON = topojson.feature(topData, topData.objects.counties)
 
+    for (let i = 0; i < geoJSON.features.length; i++) {
+        for (let k = 0; k < eduData.length; k++) {
+            if (geoJSON.features[i].id === eduData[k].fips) {
+                geoJSON.features[i] = { ...geoJSON.features[i], ...eduData[k] }
+            }
+        }
+    }
 
     const h = 700
     const w = 900
@@ -50,33 +49,21 @@ async function fetchData() {
         .append("path")
         .attr("d", path)
         .attr("data-fips", (d) => `${d.id}`)
-        .attr("data-education", (d) => {
-            let data = ""
-            eduData.forEach((e) => {
-                if (d.id === e.fips) {
-                    data = e.bachelorsOrHigher
-                }
-            })
-            return data
-        })
+        .attr("data-education", (d) => d.bachelorsOrHigher)
+        .attr("data-state", (d) => d.state)
+        .attr("data-county", (d) => d.area_name)
         .classed("county", true)
-        .attr("fill", (d) => {
-            let data = ""
-            eduData.forEach(e => {
-                if (d.id === e.fips) {
-                    data = e.bachelorsOrHigher
-                }
-            })
-            return colorScale(data)
-        })
+        .attr("fill", (d) => colorScale(d.bachelorsOrHigher))
         .attr("stroke", "#A3D5FF")
         .attr("stroke-width", 1)
         .on("mouseover", (e) => {
             tooltip.attr("data-education", `${d3.select(e.target).attr("data-education")}`)
-                .text(`${d3.select(e.target).attr("data-education")}%`)
-                .style("transform", `translate(${e.target.getPointAtLength(0).x + 25}px, ${e.target.getPointAtLength(0).y - 25}px)`)
-            // add state, county, 
-            // add state lines 
+                .text(`${d3.select(e.target).attr("data-state")},\n${d3.select(e.target).attr("data-county")}\n${d3.select(e.target).attr("data-education")}%`)
+                .style("transform", `translate(${e.target.getPointAtLength(0).x + 25}px, ${e.target.getPointAtLength(0).y - 75}px)`)
+                .classed("close", false)
+        })
+        .on("mouseout", (e) => {
+            tooltip.classed("close", true)
         })
 
     const title = svg.append("g")
@@ -95,6 +82,7 @@ async function fetchData() {
         .domain(range)
         .range([0, 200])
     const legendAxis = d3.axisBottom(legendScale)
+        .tickFormat(d => d + "%")
     const legend = svg.append("g")
         .attr("transform", `translate(550, 150)`)
         .attr("id", "legend")
@@ -115,14 +103,15 @@ async function fetchData() {
         .attr("id", "tooltip")
         .classed("close", true)
 
-    console.log(
-        // topData,
-        range,
-        intervals,
-        eduData,
-        // geoJSON.features
-    )
-
+    svg.selectAll(null)
+        .data(topojson.feature(topData, topData.objects.states).features)
+        .enter()
+        .append("path")
+        .attr("d", path)
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .attr("fill-opacity", 0)
+        .attr("pointer-events", "none")
 }
 
 fetchData()
