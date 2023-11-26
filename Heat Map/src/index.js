@@ -1,5 +1,5 @@
 import "./main.scss"
-import * as dateParse from "./date-parse"
+import { yearParse, monthParse } from "./date-parse"
 
 async function fetchData() {
     const response = await fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json")
@@ -35,10 +35,10 @@ async function fetchData() {
         .style("font-size", "18px")
 
     const xScale = d3.scaleTime()
-        .domain(d3.extent(dataset, (d) => dateParse.yearParse(d.year.toString())))
+        .domain(d3.extent(dataset, (d) => yearParse(d.year.toString())))
         .range([padding, w - padding])
     const yScale = d3.scaleTime()
-        .domain(d3.extent(dataset, (d) => dateParse.monthParse(d.month.toString())))
+        .domain(d3.extent(dataset, (d) => monthParse(d.month.toString())))
         .range([h - padding - ((h - padding * 2) / 12 / 2), padding + ((h - padding * 2) / 12 / 2)])
     let range = d3.extent(dataset, (d) => baseTemp + d.variance)
     let colorSpace = ["#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4"].reverse()
@@ -90,14 +90,14 @@ async function fetchData() {
         .attr("data-year", (d) => d.year)
         .attr("data-variance", (d) => d.variance)
         .attr("data-temp", (d) => baseTemp + d.variance)
-        .attr("x", (d) => xScale(dateParse.yearParse(d.year.toString())))
-        .attr("y", (d) => yScale(dateParse.monthParse(d.month.toString())) - ((h - padding * 2) / 12 / 2))
+        .attr("x", (d) => xScale(yearParse(d.year.toString())))
+        .attr("y", (d) => yScale(monthParse(d.month.toString())) - ((h - padding * 2) / 12 / 2))
         .attr("height", () => (h - padding * 2) / 12)
         .attr("width", () => (w - padding * 2) / (d3.max(dataset, (d) => d.year) - d3.min(dataset, (d) => d.year)))
         .attr("fill", (d) => colorScale(baseTemp + d.variance))
         .on("mouseover", (e) => {
             tooltip.attr("data-year", e.target.dataset.year)
-                .text(`${dateParse.monthParse((Number(e.target.dataset.month) + 1).toString()).toLocaleString('default', { month: 'long' })} ${e.target.dataset.year}\n${Number(e.target.dataset.variance) > 0 ? `+${e.target.dataset.variance}` : e.target.dataset.variance}, ${Math.round(Number(e.target.dataset.temp) * 1000) / 1000}`)
+                .text(`${monthParse((Number(e.target.dataset.month) + 1).toString()).toLocaleString('default', { month: 'long' })} ${e.target.dataset.year}\n${Number(e.target.dataset.variance) > 0 ? `+${e.target.dataset.variance}` : e.target.dataset.variance}, ${Math.round(Number(e.target.dataset.temp) * 1000) / 1000}`)
                 .style("transform", `translate(${Number(d3.select(e.target).attr("x")) + 25}px, ${Number(d3.select(e.target).attr("y")) - 35}px)`)
                 .classed("close", false)
         })

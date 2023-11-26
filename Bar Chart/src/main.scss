@@ -1,17 +1,24 @@
 body {
     background-color: rgb(116, 121, 131);
-    overflow: hidden;
-}
-
-#container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 97vh;
 }
 
 .bar:hover {
     fill: rgba(0, 0, 0, 0.9)
+}
+
+#tooltip {
+    position: absolute;
+    width: 110px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    padding: 4px;
+    opacity: 0.85;
 }
 
 .close {

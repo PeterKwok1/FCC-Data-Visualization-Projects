@@ -1,5 +1,4 @@
-// compare to fcc example 
-// update bar chart tool tip
+// add timeformat quarters to bar chart
 
 import "./main.scss"
 import { hourParse } from "./time-parsers"
@@ -15,8 +14,8 @@ async function fetchData() {
 
     const svg = d3.select("#container")
         .append("svg")
-        .attr("width", "900")
-        .attr("height", "600")
+        .attr("width", w)
+        .attr("height", h)
         .style("background-color", "white")
         .style("box-shadow", "3px 3px 15px")
 
