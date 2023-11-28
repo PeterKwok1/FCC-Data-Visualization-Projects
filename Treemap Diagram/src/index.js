@@ -1,4 +1,7 @@
-// https://www.youtube.com/watch?v=60HBKI5VV_4
+// https://www.youtube.com/watch?v=60HBKI5VV_4 - 5:24
+// https://treemap-diagram.freecodecamp.rocks/
+
+// generate 20 colors.
 
 import "./main.scss"
 
@@ -13,7 +16,6 @@ let sources = [
     "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/movie-data.json",
     "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json"
 ]
-
 async function fetchData(links) {
     let responses = await Promise.all(links.map(e => fetch(e)))
     let data = await Promise.all(responses.map(e => e.json()))
@@ -23,5 +25,22 @@ const datasets = await fetchData(sources)
 console.log(datasets)
 
 function appendData(data) {
+    const hierarchy = d3.hierarchy(data).sum(d => d.value)
+    const treemap = d3.treemap().size([w, h]).padding(1)(hierarchy)
+    const leaves = treemap.descendants().filter(e => e.depth === 2)
+    function fader(color) { return d3.interpolateRgb(color, "#ffffff")(0.25) }
+    const colorScale = d3.scaleOrdinal().range(d3.schemeCategory10.map(e => fader(e)))
 
+    const cells = svg.selectAll("rect")
+        .data(leaves)
+        .enter()
+        .append("rect")
+        .attr("transform", d => `translate(${d.x0}, ${d.y0})`)
+        .attr("height", d => d.y1 - d.y0)
+        .attr("width", d => d.x1 - d.x0)
+        .attr("fill", d => colorScale(d.parent.data.name))
+
+    console.log(leaves)
 }
+
+appendData(datasets[0])
