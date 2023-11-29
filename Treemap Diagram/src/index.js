@@ -1,7 +1,8 @@
 // https://www.youtube.com/watch?v=60HBKI5VV_4 - 5:24
 // https://treemap-diagram.freecodecamp.rocks/
 
-// generate 20 colors.
+// pass tests
+// compare - links
 
 import "./main.scss"
 
@@ -29,18 +30,37 @@ function appendData(data) {
     const treemap = d3.treemap().size([w, h]).padding(1)(hierarchy)
     const leaves = treemap.descendants().filter(e => e.depth === 2)
     function fader(color) { return d3.interpolateRgb(color, "#ffffff")(0.25) }
-    const colorScale = d3.scaleOrdinal().range(d3.schemeCategory10.map(e => fader(e)))
+    const colorScale = d3.scaleOrdinal().range(["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f", "#e5c494", "#b3b3b3", "#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"].map(e => fader(e)))
 
     const cells = svg.selectAll("rect")
         .data(leaves)
-        .enter()
-        .append("rect")
+        .join(
+            (enter) => enter.append("rect"),
+            (update) => update,
+            (exit) => exit.remove()
+        )
+        .classed("tile", true)
+        .attr("data-name", d => d.data.name)
+        .attr("data-category", d => d.data.category)
+        .attr("data-value", d => (d.y1 - d.y0) * (d.x1 - d.x0))
         .attr("transform", d => `translate(${d.x0}, ${d.y0})`)
         .attr("height", d => d.y1 - d.y0)
         .attr("width", d => d.x1 - d.x0)
         .attr("fill", d => colorScale(d.parent.data.name))
 
+    const text = d3.select("#container").selectAll(".description")
+        .data(leaves)
+        .join(
+            (enter) => enter.insert("div", ":first-child"),
+            (update) => update,
+            (exit) => exit.remove()
+        )
+        .classed("description", true)
+        .style("transform", d => `translate(${d.x0}px, ${d.y0 + 10}px)`)
+        .text(d => d.data.name)
+
     console.log(leaves)
 }
 
 appendData(datasets[0])
+
