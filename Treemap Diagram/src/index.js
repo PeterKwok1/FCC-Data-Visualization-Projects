@@ -1,6 +1,8 @@
 // https://www.youtube.com/watch?v=60HBKI5VV_4 - 5:24
 // https://treemap-diagram.freecodecamp.rocks/
 
+// description wrap
+// see if can group descriptions.
 // pass tests
 // compare - links
 
@@ -48,18 +50,41 @@ function appendData(data) {
         .attr("width", d => d.x1 - d.x0)
         .attr("fill", d => colorScale(d.parent.data.name))
 
-    const text = d3.select("#container").selectAll(".description")
+    const text = d3.select("#container")
+        .insert("div", ":first-child")
+        .selectAll(".description")
         .data(leaves)
         .join(
-            (enter) => enter.insert("div", ":first-child"),
+            (enter) => enter.append("div"),
             (update) => update,
             (exit) => exit.remove()
         )
         .classed("description", true)
-        .style("transform", d => `translate(${d.x0}px, ${d.y0 + 10}px)`)
         .text(d => d.data.name)
+        .style("transform", d => {
+            if (d.x1 - d.x0 > d.y1 - d.y0) {
+                return `translate(${d.x0}px, ${d.y0}px)`
+            } else {
+                return `translate(${d.x1}px, ${d.y0}px) rotate(90deg)`
+                // adjust by the difference between centers (imagine rotating to fit match).
+            }
+        })
+        .style("height", d => {
+            if (d.x1 - d.x0 >= d.y1 - d.y0) {
+                return `${d.y1 - d.y0}px`
+            } else {
+                return `${d.x1 - d.x0}px`
+            }
+        })
+        .style("width", d => {
+            if (d.x1 - d.x0 >= d.y1 - d.y0) {
+                return `${d.x1 - d.x0}px`
+            } else {
+                return `${d.y1 - d.y0}px`
+            }
+        })
 
-    console.log(leaves)
+    console.log(text)
 }
 
 appendData(datasets[0])
