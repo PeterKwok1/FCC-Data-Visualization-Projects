@@ -62,17 +62,21 @@ function appendData(data) {
         .classed("description", true)
         .text(d => d.data.name)
         .style("transform", d => {
-            if (d.x1 - d.x0 > d.y1 - d.y0) {
+            if (d.x1 - d.x0 >= d.y1 - d.y0) {
                 return `translate(${d.x0}px, ${d.y0}px)`
             } else {
-                return `translate(${d.x1}px, ${d.y0}px) rotate(90deg)`
+                // return `translate(${d.x0}px, ${d.y0}px)`
+                return `translate(${d.x0 - (((d.y1 - d.y0) / 2) - ((d.x1 - d.x0) / 2))}px, ${d.y0 - (((d.x1 - d.x0) / 2) - ((d.y1 - d.y0) / 2))}px) rotate(90deg)`
                 // adjust by the difference between centers (imagine rotating to fit match).
+                // o - (((d.y1-d.y0)/2) - ((d.x1 - d.x0)/2))
+                // o + (((d.x1-d.x0)/2) - ((d.y1 - d.y0)/2))
             }
         })
         .style("height", d => {
             if (d.x1 - d.x0 >= d.y1 - d.y0) {
                 return `${d.y1 - d.y0}px`
             } else {
+                // return `${d.y1 - d.y0}px`
                 return `${d.x1 - d.x0}px`
             }
         })
@@ -80,9 +84,17 @@ function appendData(data) {
             if (d.x1 - d.x0 >= d.y1 - d.y0) {
                 return `${d.x1 - d.x0}px`
             } else {
+                // return `${d.x1 - d.x0}px`
                 return `${d.y1 - d.y0}px`
             }
         })
+    // .classed("vertical", (d) => {
+    //     if (d.x1 - d.x0 >= d.y1 - d.y0) {
+    //         return false
+    //     } else {
+    //         return true
+    //     }
+    // })
 
     console.log(text)
 }

@@ -8,8 +8,12 @@ body {
 
 .description {
     position: absolute;
-    overflow: auto;
+    overflow: scroll;
 }
+
+// .vertical {
+//     writing-mode: vertical-rl;
+// }
 
 *::-webkit-scrollbar {
     width: 0;
