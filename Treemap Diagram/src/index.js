@@ -31,7 +31,7 @@ console.log(datasets)
 
 
 const h = 750, w = 1150, paddingT = 100, paddingB = 50, paddingL = 50, paddingR = 200
-const svg = d3.select("#container").append("svg").attr("height", h).attr("width", w).style("background-color", "white").style("box-shadow", "3px 3px 15px")
+const svg = d3.select("#data").attr("height", h).attr("width", w).style("background-color", "white").style("box-shadow", "3px 3px 15px")
 
 
 
@@ -45,7 +45,6 @@ function appendData(data) {
     const leaves = treemap.descendants().filter(e => e.depth === 2)
     function fader(color) { return d3.interpolateRgb(color, "#ffffff")(0.25) }
     const colorScale = d3.scaleOrdinal()
-        // .domain(parents, d => d.data.name)
         .range(["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f", "#e5c494", "#b3b3b3", "#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"].map(e => fader(e)))
 
     const cells = svg.selectAll(".tile")
@@ -74,8 +73,7 @@ function appendData(data) {
         .domain(cellSizeRange)
         .range(paddingRange)
 
-    const text = d3.select("#container")
-        .insert("div", ":first-child")
+    const titles = d3.select("#descriptions")
         .selectAll(".description")
         .data(leaves)
         .join(
@@ -113,6 +111,9 @@ function appendData(data) {
         .style("padding", (d) => {
             return `${paddingScale((d.x1 - d.x0) * (d.y1 - d.y0))}px`
         })
+        .on("mouseover", e => {
+            // tooltip.text(`${}\n${}\n${}`)
+        })
 
     const legend = svg.append("g")
         .attr("id", "legend")
@@ -142,14 +143,10 @@ function appendData(data) {
         .attr("transform", (d, i) => `translate(30, ${i * 30 + 20})`)
         .text(d => d.data.name)
 
-    const tooltip = d3.select("#container")
-        .insert("div", ":first-child")
-        .attr("id", "tooltip")
-        .text("tooltip ph")
+    const tooltip = d3.select("#tooltip")
+        .classed("close", true)
 
-    const inputData = d3.select("#container")
-        .insert("select", ":first-child")
-        .attr("id", "input-data")
+    const dataSelect = d3.select("#data-select")
         .style("transform", `translate(${w - (paddingR - 30)}px, ${paddingT - 50}px)`)
         .text("input ph")
 
