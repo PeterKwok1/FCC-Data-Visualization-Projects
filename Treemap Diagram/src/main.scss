@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     background-color: rgb(116, 121, 131);
     display: flex;
@@ -9,26 +13,33 @@ body {
 .description {
     position: absolute;
     overflow: scroll;
+    text-align: center;
 }
-
-// .vertical {
-//     writing-mode: vertical-rl;
-// }
 
 *::-webkit-scrollbar {
     width: 0;
     height: 0;
 }
 
-// #tooltip {
-//     position: absolute;
-//     white-space: pre;
-//     background-color: white;
-//     padding: 5px;
-//     border: 1px solid black;
-//     border-radius: 5px;
-//     opacity: 0.75;
-// }
+#tooltip {
+    position: absolute;
+    white-space: pre;
+    background-color: white;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+    opacity: 0.75;
+}
+
+#input-data {
+    position: absolute;
+    white-space: pre;
+    background-color: white;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+    opacity: 0.75;
+}
 
 // .close {
 //     display: none
