@@ -1,7 +1,7 @@
 // https://www.youtube.com/watch?v=60HBKI5VV_4 - 5:24
 // https://treemap-diagram.freecodecamp.rocks/
 
-// pass tests
+// stop overlaps
 // compare 
 
 import "./main.scss"
@@ -16,28 +16,33 @@ async function fetchData(links) {
     let data = await Promise.all(responses.map(e => e.json()))
     return data
 }
-const datasets = await fetchData(sources)
-for (let i = 0; i < datasets.length; i++) {
-    if (datasets[i].name === "Kickstarter") {
-        datasets[i].description = "Top 100 pledged by category"
-    } else if (datasets[i].name === "Movies") {
-        datasets[i].description = "Top 100 gross by genre"
-    } else if (datasets[i].name === "Video Game Sales Data Top 100") {
-        datasets[i].description = "Top 100 sold by platform"
-    }
+const datasetsArr = await fetchData(sources)
+function arrToObj(arr) {
+    const obj = {}
+    arr.forEach(e => {
+        obj[e.name] = e
+        if (e.name === "Kickstarter") {
+            obj[e.name].description = "Top 100 pledged by category"
+        } else if (e.name === "Movies") {
+            obj[e.name].description = "Top 100 gross by genre"
+        } else if (e.name === "Video Game Sales Data Top 100") {
+            obj[e.name].description = "Top 100 sold by platform"
+        }
+    })
+    return obj
 }
-console.log(datasets)
+const datasetsObj = arrToObj(datasetsArr)
 
 
 
-const h = 750, w = 1150, paddingT = 100, paddingB = 50, paddingL = 50, paddingR = 200
-const svg = d3.select("#data").attr("height", h).attr("width", w).style("background-color", "white").style("box-shadow", "3px 3px 15px")
+const h = 950, w = 1450, paddingT = 100, paddingB = 50, paddingL = 50, paddingR = 200
+const svg = d3.select("#data").attr("height", h).attr("width", w)
 
 
 
 function appendData(data) {
-    const title = svg.append("text").attr("id", "title").attr("font-size", "30").attr("text-anchor", "middle").attr("transform", `translate(${w / 2}, ${paddingT / 2})`).text(`${data.name}`)
-    const description = svg.append("text").attr("id", "description").attr("text-anchor", "middle").attr("transform", `translate(${w / 2}, ${paddingT / (4 / 3)})`).text(`${data.description}`)
+    const title = svg.append("text").attr("id", "title").attr("transform", `translate(${w / 2}, ${paddingT / 2})`).text(`${data.name}`)
+    const description = svg.append("text").attr("id", "description").attr("transform", `translate(${w / 2}, ${paddingT / (4 / 3)})`).text(`${data.description}`)
 
     const hierarchy = d3.hierarchy(data).sum(d => d.value)
     const treemap = d3.treemap().size([w - (paddingL + paddingR), h - (paddingT + paddingB)]).paddingInner(1)(hierarchy)
@@ -62,10 +67,21 @@ function appendData(data) {
         .attr("height", d => d.y1 - d.y0)
         .attr("width", d => d.x1 - d.x0)
         .attr("fill", d => colorScale(d.parent.data.name))
+        .on("mousemove", (e, d) => {
+            tooltip
+                .attr("data-value", `${(d.y1 - d.y0) * (d.x1 - d.x0)}`)
+                .text(`${d.data.category}\n${d.data.name}\n${d.data.value}`)
+                .style("transform", `translate(${e.offsetX + 20}px, ${e.offsetY - 80}px)`)
+                .classed("close", false)
+        })
+        .on("mouseout", () => {
+            tooltip
+                .classed("close", true)
+        })
 
     const cellSizeRange = d3.extent(leaves, (d) => (d.x1 - d.x0) * (d.y1 - d.y0))
-    const fontSizeRange = [12, 24]
-    const paddingRange = [2, 10]
+    const fontSizeRange = [10, 36]
+    const paddingRange = [0, 8]
     const cellFontScale = d3.scaleLinear()
         .domain(cellSizeRange)
         .range(fontSizeRange)
@@ -73,15 +89,15 @@ function appendData(data) {
         .domain(cellSizeRange)
         .range(paddingRange)
 
-    const titles = d3.select("#descriptions")
-        .selectAll(".description")
+    const contents = d3.select("#contents")
+        .selectAll(".content")
         .data(leaves)
         .join(
             (enter) => enter.append("div"),
             (update) => update,
             (exit) => exit.remove()
         )
-        .classed("description", true)
+        .classed("content", true)
         .text(d => d.data.name)
         .style("height", d => {
             if (d.x1 - d.x0 >= d.y1 - d.y0) {
@@ -110,9 +126,6 @@ function appendData(data) {
         })
         .style("padding", (d) => {
             return `${paddingScale((d.x1 - d.x0) * (d.y1 - d.y0))}px`
-        })
-        .on("mouseover", e => {
-            // tooltip.text(`${}\n${}\n${}`)
         })
 
     const legend = svg.append("g")
@@ -148,10 +161,19 @@ function appendData(data) {
 
     const dataSelect = d3.select("#data-select")
         .style("transform", `translate(${w - (paddingR - 30)}px, ${paddingT - 50}px)`)
-        .text("input ph")
-
-    console.log(parents)
 }
 
-appendData(datasets[0])
 
+
+appendData(datasetsObj.Kickstarter)
+
+const dataSelect = document.querySelector("#data-select")
+Object.keys(datasetsObj).forEach(e => {
+    const option = document.createElement("option")
+    option.textContent = e
+    dataSelect.append(option)
+})
+
+dataSelect.addEventListener("change", (e) => {
+    appendData(datasetsObj[e.target.value])
+})
