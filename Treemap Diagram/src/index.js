@@ -1,14 +1,31 @@
 // testing git
 
 import "./main.scss"
-import { fetchData } from "./fetch"
-import { arrToObj } from "./arr-to-obj"
 
 const data = [
     "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/kickstarter-funding-data.json",
     "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/movie-data.json",
     "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json"
 ]
+async function fetchData(links) {
+    let responses = await Promise.all(links.map(e => fetch(e)))
+    let data = await Promise.all(responses.map(e => e.json()))
+    return data
+}
+function arrToObj(arr) {
+    const obj = {}
+    arr.forEach(e => {
+        obj[e.name] = e
+        if (e.name === "Kickstarter") {
+            obj[e.name].description = "Top 100 pledged by category"
+        } else if (e.name === "Movies") {
+            obj[e.name].description = "Top 100 gross by genre"
+        } else if (e.name === "Video Game Sales Data Top 100") {
+            obj[e.name].description = "Top 100 sold by platform"
+        }
+    })
+    return obj
+}
 const datasetsArr = await fetchData(data)
 const datasetsObj = arrToObj(datasetsArr)
 
