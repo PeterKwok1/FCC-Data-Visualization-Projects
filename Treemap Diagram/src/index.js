@@ -1,3 +1,5 @@
+// testing git
+
 import "./main.scss"
 import { fetchData } from "./fetch"
 import { arrToObj } from "./arr-to-obj"
@@ -147,6 +149,3 @@ function appendData(data) {
         .attr("transform", (d, i) => `translate(30, ${i * 30 + 20})`)
         .text(d => d.data.name)
 }
-
-
-
