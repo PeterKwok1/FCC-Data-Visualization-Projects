@@ -1,48 +1,43 @@
-// https://www.youtube.com/watch?v=60HBKI5VV_4 - 5:24
-// https://treemap-diagram.freecodecamp.rocks/
-
-// stop overlaps
-// compare 
-
 import "./main.scss"
+import { fetchData } from "./fetch"
+import { arrToObj } from "./arr-to-obj"
 
-let sources = [
+const data = [
     "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/kickstarter-funding-data.json",
     "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/movie-data.json",
     "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json"
 ]
-async function fetchData(links) {
-    let responses = await Promise.all(links.map(e => fetch(e)))
-    let data = await Promise.all(responses.map(e => e.json()))
-    return data
-}
-const datasetsArr = await fetchData(sources)
-function arrToObj(arr) {
-    const obj = {}
-    arr.forEach(e => {
-        obj[e.name] = e
-        if (e.name === "Kickstarter") {
-            obj[e.name].description = "Top 100 pledged by category"
-        } else if (e.name === "Movies") {
-            obj[e.name].description = "Top 100 gross by genre"
-        } else if (e.name === "Video Game Sales Data Top 100") {
-            obj[e.name].description = "Top 100 sold by platform"
-        }
-    })
-    return obj
-}
+const datasetsArr = await fetchData(data)
 const datasetsObj = arrToObj(datasetsArr)
-
-
 
 const h = 950, w = 1450, paddingT = 100, paddingB = 50, paddingL = 50, paddingR = 200
 const svg = d3.select("#data").attr("height", h).attr("width", w)
+const title = svg.append("text").attr("id", "title").attr("transform", `translate(${w / 2}, ${paddingT / 2})`)
+const description = svg.append("text").attr("id", "description").attr("transform", `translate(${w / 2}, ${paddingT / (4 / 3)})`)
+const legend = svg.append("g")
+    .attr("id", "legend")
+    .attr("transform", `translate(${w - (paddingR - 30)}, ${paddingT})`)
+const tooltip = d3.select("#tooltip")
+    .classed("close", true)
+const dataSelect = d3.select("#data-select")
+    .style("transform", `translate(${w - (paddingR - 30)}px, ${paddingT - 50}px)`)
+    .on("change", (e) => {
+        appendData(datasetsObj[e.target.value])
+    })
+    .selectAll("option")
+    .data(Object.keys(datasetsObj))
+    .join(
+        enter => enter.append("option"),
+        update => update,
+        exit => exit.remove()
+    )
+    .text(d => d)
 
-
+appendData(datasetsObj.Kickstarter)
 
 function appendData(data) {
-    const title = svg.append("text").attr("id", "title").attr("transform", `translate(${w / 2}, ${paddingT / 2})`).text(`${data.name}`)
-    const description = svg.append("text").attr("id", "description").attr("transform", `translate(${w / 2}, ${paddingT / (4 / 3)})`).text(`${data.description}`)
+    title.text(`${data.name}`)
+    description.text(`${data.description}`)
 
     const hierarchy = d3.hierarchy(data).sum(d => d.value)
     const treemap = d3.treemap().size([w - (paddingL + paddingR), h - (paddingT + paddingB)]).paddingInner(1)(hierarchy)
@@ -55,9 +50,9 @@ function appendData(data) {
     const cells = svg.selectAll(".tile")
         .data(leaves)
         .join(
-            (enter) => enter.append("rect"),
-            (update) => update,
-            (exit) => exit.remove()
+            enter => enter.append("rect"),
+            update => update,
+            exit => exit.remove()
         )
         .classed("tile", true)
         .attr("data-name", d => d.data.name)
@@ -128,10 +123,6 @@ function appendData(data) {
             return `${paddingScale((d.x1 - d.x0) * (d.y1 - d.y0))}px`
         })
 
-    const legend = svg.append("g")
-        .attr("id", "legend")
-        .attr("transform", `translate(${w - (paddingR - 30)}, ${paddingT})`)
-
     legend.selectAll(".legend-item")
         .data(parents)
         .join(
@@ -155,25 +146,7 @@ function appendData(data) {
         .classed("legendLabels", true)
         .attr("transform", (d, i) => `translate(30, ${i * 30 + 20})`)
         .text(d => d.data.name)
-
-    const tooltip = d3.select("#tooltip")
-        .classed("close", true)
-
-    const dataSelect = d3.select("#data-select")
-        .style("transform", `translate(${w - (paddingR - 30)}px, ${paddingT - 50}px)`)
 }
 
 
 
-appendData(datasetsObj.Kickstarter)
-
-const dataSelect = document.querySelector("#data-select")
-Object.keys(datasetsObj).forEach(e => {
-    const option = document.createElement("option")
-    option.textContent = e
-    dataSelect.append(option)
-})
-
-dataSelect.addEventListener("change", (e) => {
-    appendData(datasetsObj[e.target.value])
-})
