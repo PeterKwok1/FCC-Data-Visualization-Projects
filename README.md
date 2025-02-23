@@ -1,7 +1,11 @@
-# D3 enter, update, exit 
-    https://www.youtube.com/watch?v=HE5Pbq6seZo
-    https://www.d3indepth.com/enterexit/
-    https://www.youtube.com/watch?v=AYPTVwRaYiI 
+# FCC Data Visualization Projects
+
+## Notes
+- D3 enter, update, exit
+    - https://www.youtube.com/watch?v=HE5Pbq6seZo
+    - https://www.d3indepth.com/enterexit/
+    - https://www.youtube.com/watch?v=AYPTVwRaYiI 
+
 ## Example
 ```
     let dataBase = [1, 2, 3]
